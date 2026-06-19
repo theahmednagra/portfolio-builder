@@ -81,7 +81,7 @@ export default function ExperienceSection({ experiences, onRefresh, onDelete }: 
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-portfolio-bg/70 backdrop-blur-md p-3 sm:p-6 md:p-10 transition-all">
           <div ref={modalRef} className="relative w-full max-w-3xl my-auto bg-portfolio-card border border-portfolio-border rounded-2xl shadow-2xl overflow-hidden">
             <div className="absolute top-5 right-5 z-20">
-              <button onClick={() => setIsModalOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-portfolio-bg/80 border border-portfolio-border/80 text-portfolio-text/60 hover:text-portfolio-text cursor-pointer">
+              <button onClick={() => setIsModalOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-portfolio-bg/80 border border-portfolio-border/80 text-portfolio-text/60 hover:text-portfolio-text hover:border-portfolio-accent transition-all cursor-pointer">
                 <FiX className="w-4 h-4" />
               </button>
             </div>

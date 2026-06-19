@@ -1,6 +1,5 @@
 "use client";
 
-import { useProgressNavigation } from "@/components/portfolio/progress-provider";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import {
@@ -65,8 +64,6 @@ export default function OverviewDashboard() {
   const [data, setData] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const navigate = useProgressNavigation()
 
   useEffect(() => {
     fetch("/api/overview")
@@ -154,7 +151,7 @@ export default function OverviewDashboard() {
       </div>
 
       {/* ── Counter row ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <StatCard label="Projects" value={data.counters.projects} icon={FiLayers} />
         <StatCard label="Experience" value={data.counters.experiences} icon={FiBriefcase} />
         <StatCard label="Linked accounts" value={data.counters.socials} icon={FiLink2} />

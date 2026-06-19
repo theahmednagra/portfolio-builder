@@ -41,15 +41,15 @@ export default function LogoutButton() {
 
     return (
         <>
-            <Tooltip content="Logout">
+            <Tooltip position="top" content="Logout">
                 <button
-                onClick={handleLogoutClick}
-                className="text-portfolio-muted/40 hover:text-portfolio-accent p-1.5 rounded-lg transition-colors cursor-pointer"
-                aria-label="Sign Out"
-                disabled={isLoading}
-            >
-                <FiLogOut className="w-4 h-4" />
-            </button>
+                    onClick={handleLogoutClick}
+                    className="text-portfolio-muted/40 hover:text-portfolio-accent p-1.5 rounded-lg transition-colors cursor-pointer"
+                    aria-label="Sign Out"
+                    disabled={isLoading}
+                >
+                    <FiLogOut className="w-4 h-4" />
+                </button>
             </Tooltip>
 
             {/* Reusable Confirmation Dialog System Hook */}

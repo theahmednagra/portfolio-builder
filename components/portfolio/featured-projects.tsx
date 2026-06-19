@@ -1,6 +1,6 @@
 "use client"
 
-import BlurImage from "@/components/portfolio/blur-image";
+import LazyImage from "@/components/portfolio/lazy-image";
 import { FaArrowRight } from "react-icons/fa6";
 import { useProgressNavigation } from "./progress-provider";
 
@@ -51,7 +51,7 @@ export default function FeaturedProjects({ projects = [], username }: FeaturedPr
                 {/* Premium Isolated Icon Frame Container */}
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0 overflow-hidden border border-portfolio-border bg-portfolio-bg p-1.5 flex items-center justify-center transition-all duration-300 group-hover:scale-[1.03] group-hover:border-portfolio-accent/30 shadow-2xs">
                   {proj.iconUrl ? (
-                    <BlurImage
+                    <LazyImage
                       src={proj.iconUrl}
                       alt={`${proj.title} icon`}
                       className="w-full h-full object-contain rounded-md"

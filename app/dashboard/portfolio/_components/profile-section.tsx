@@ -6,14 +6,12 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import {
   FiEdit3,
   FiMail,
-  FiGithub,
-  FiLinkedin,
-  FiTwitter,
   FiPlus,
   FiX,
   FiFileText,
   FiUser,
 } from "react-icons/fi";
+import { FaGithub, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 
 interface ProfileSectionProps {
   profileData: any;
@@ -121,17 +119,17 @@ export default function ProfileSection({ profileData, onRefresh }: ProfileSectio
               <div className="flex items-center gap-4 text-portfolio-text/40">
                 {profileData.socialLinks?.github && (
                   <a href={profileData.socialLinks.github} target="_blank" rel="noopener noreferrer" className="hover:text-portfolio-text transition-colors p-1 pl-0">
-                    <FiGithub className="w-5 h-5" />
+                    <FaGithub className="w-5 h-5" />
                   </a>
                 )}
                 {profileData.socialLinks?.linkedin && (
                   <a href={profileData.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-portfolio-text transition-colors p-1">
-                    <FiLinkedin className="w-5 h-5" />
+                    <FaLinkedin className="w-5 h-5" />
                   </a>
                 )}
                 {profileData.socialLinks?.twitter && (
                   <a href={profileData.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="hover:text-portfolio-text transition-colors p-1">
-                    <FiTwitter className="w-5 h-5" />
+                    <FaXTwitter className="w-5 h-5" />
                   </a>
                 )}
               </div>

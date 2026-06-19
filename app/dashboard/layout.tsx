@@ -1,9 +1,9 @@
+"use client";
+
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
 import DashboardMobileHeader from "@/components/dashboard/mobile-header";
 import { ToastProvider } from "@/context/toast-context";
 import { AuthProvider } from "@/context/auth-context";
-import { FiCopy, FiNavigation } from "react-icons/fi";
-import ThemeToggleIconOnly from "@/components/global/theme-toggle";
 import TopButtons from "@/components/dashboard/top-buttons";
 
 interface DashboardLayoutProps {
@@ -12,26 +12,25 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
-
         <AuthProvider>
-            <div className="min-h-screen bg-portfolio-bg text-portfolio-text antialiased selection:bg-portfolio-accent/20 selection:text-portfolio-accent">
-
-                {/* Structural Modular Components Layout */}
-                <DashboardSidebar />
-                <DashboardMobileHeader />
-
-
-                {/* 🚀 MAIN WINDOW CONTENT VIEWPORT CONTAINER */}
+            <div className="min-h-screen bg-portfolio-bg text-portfolio-text antialiased selection:bg-portfolio-accent/20 selection:text-portfolio-accent flex w-full relative">
                 <ToastProvider>
 
-                    <main className="flex-1 md:pl-64 pt-16 md:pt-0 min-w-0">
-                        <div className="max-w-5xl mx-auto sm:p-4 md:p-6 lg:p-8 min-h-screen flex flex-col">
+                    {/* Structural Drawer Layout Columns */}
+                    <DashboardSidebar />
+                    <DashboardMobileHeader />
+
+                    {/* Main Content Viewport Canvas Block */}
+                    <main className="flex-1 w-full md:pl-64 pt-14 md:pt-5 min-w-0 flex flex-col min-h-screen">
+                        <div className="w-full max-w-5xl mx-auto p-2 sm:p-4 lg:p-6 flex-1 flex flex-col">
                             <TopButtons />
-                            {children}
+                            <div className="flex-1 w-full animate-fadeIn">
+                                {children}
+                            </div>
                         </div>
                     </main>
-                </ToastProvider>
 
+                </ToastProvider>
             </div>
         </AuthProvider>
     );

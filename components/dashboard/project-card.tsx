@@ -47,7 +47,7 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
         <div className="bg-portfolio-card border border-portfolio-border/80 rounded-2xl overflow-hidden shadow-lg hover:border-portfolio-accent/40 transition-all flex flex-col justify-between relative mb-6 break-inside-avoid">
 
             <div>
-                {/* Cover Image Header Layer (Hover Effect Completely Removed) */}
+                {/* Cover Image Header Layer */}
                 {project.imageFile && (
                     <div className="w-full aspect-video overflow-hidden relative border-b border-portfolio-border/40 bg-portfolio-bg">
                         <img
@@ -128,19 +128,29 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
                                 className="w-full flex items-center justify-between text-[12px] font-bold tracking-wider text-portfolio-text/40 uppercase cursor-pointer hover:text-portfolio-text/60 transition-colors"
                             >
                                 <span>Core Capabilities ({project.features.length})</span>
-                                {featuresExpanded ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
+                                <div className="w-4 h-4 relative flex items-center justify-center">
+                                    <FiChevronDown className={`w-4 h-4 absolute transition-transform duration-300 ${featuresExpanded ? "rotate-180 opacity-0" : "rotate-0 opacity-100"}`} />
+                                    <FiChevronUp className={`w-4 h-4 absolute transition-transform duration-300 ${featuresExpanded ? "rotate-0 opacity-100" : "-rotate-180 opacity-0"}`} />
+                                </div>
                             </button>
 
-                            {featuresExpanded && (
-                                <div className="mt-2.5 space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1 animate-fadeIn">
-                                    {project.features.map((feature, idx) => (
-                                        <div key={idx} className="flex items-start gap-2 text-[13px] text-portfolio-text/85 leading-relaxed bg-portfolio-bg/40 p-2 rounded-lg border border-portfolio-border/20">
-                                            <FiCheckCircle className="w-3.5 h-3.5 text-portfolio-accent shrink-0 mt-0.5" />
-                                            <span>{feature.text}</span>
-                                        </div>
-                                    ))}
+                            {/* Ultra-Smooth Layout Push Container */}
+                            <div 
+                                className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
+                                    featuresExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                                }`}
+                            >
+                                <div className="overflow-hidden">
+                                    <div className="mt-2.5 space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1 pb-1">
+                                        {project.features.map((feature, idx) => (
+                                            <div key={idx} className="flex items-start gap-2 text-[13px] text-portfolio-text/85 leading-relaxed bg-portfolio-bg/40 p-2 rounded-lg border border-portfolio-border/20">
+                                                <FiCheckCircle className="w-3.5 h-3.5 text-portfolio-accent shrink-0 mt-0.5" />
+                                                <span>{feature.text}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     )}
 

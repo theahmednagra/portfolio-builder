@@ -9,12 +9,10 @@ import {
   FiFileText,
   FiMail,
   FiHeart,
-  FiGithub,
-  FiLinkedin,
-  FiTwitter,
   FiAlertCircle,
   FiCheckCircle
 } from "react-icons/fi";
+import { FaGithub, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 import { useToast } from "@/context/toast-context";
 
 interface ProfileFormProps {
@@ -257,7 +255,7 @@ export default function ProfileInfoForm({ initialData, onComplete }: ProfileForm
               GitHub URL
             </label>
             <div className="relative flex items-center">
-              <FiGithub className="absolute left-4 w-4.5 h-4.5 text-portfolio-text/40" />
+              <FaGithub className="absolute left-4 w-4.5 h-4.5 text-portfolio-text/40" />
               <input
                 {...register("socialLinks.github")}
                 className={`w-full h-12 pl-12 pr-4 rounded-xl bg-portfolio-bg/70 border text-[14px] font-normal text-portfolio-text placeholder-portfolio-text/20 outline-none transition-all ${errors.socialLinks?.github
@@ -278,7 +276,7 @@ export default function ProfileInfoForm({ initialData, onComplete }: ProfileForm
               LinkedIn URL
             </label>
             <div className="relative flex items-center">
-              <FiLinkedin className="absolute left-4 w-4.5 h-4.5 text-portfolio-text/40" />
+              <FaLinkedin className="absolute left-4 w-4.5 h-4.5 text-portfolio-text/40" />
               <input
                 {...register("socialLinks.linkedin")}
                 className={`w-full h-12 pl-12 pr-4 rounded-xl bg-portfolio-bg/70 border text-[14px] font-normal text-portfolio-text placeholder-portfolio-text/20 outline-none transition-all ${errors.socialLinks?.linkedin
@@ -299,7 +297,7 @@ export default function ProfileInfoForm({ initialData, onComplete }: ProfileForm
               Twitter URL
             </label>
             <div className="relative flex items-center">
-              <FiTwitter className="absolute left-4 w-4.5 h-4.5 text-portfolio-text/40" />
+              <FaXTwitter className="absolute left-4 w-4.5 h-4.5 text-portfolio-text/40" />
               <input
                 {...register("socialLinks.twitter")}
                 className={`w-full h-12 pl-12 pr-4 rounded-xl bg-portfolio-bg/70 border text-[14px] font-normal text-portfolio-text placeholder-portfolio-text/20 outline-none transition-all ${errors.socialLinks?.twitter
@@ -321,7 +319,7 @@ export default function ProfileInfoForm({ initialData, onComplete }: ProfileForm
         <button
           type="submit"
           disabled={!isDirty || isSubmitting}
-          className={`flex items-center gap-2.5 px-6 h-12 rounded-xl text-[14px] font-bold transition-all select-none border ${!isDirty || isSubmitting
+          className={`flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold tracking-tight transition-all select-none border ${!isDirty || isSubmitting
             ? "bg-portfolio-card border-portfolio-border text-portfolio-text/30 cursor-not-allowed opacity-40"
             : "bg-portfolio-text border-portfolio-text text-portfolio-bg hover:bg-portfolio-text/90 active:scale-[0.98] shadow-[0_4px_24px_var(--color-portfolio-glow)] cursor-pointer"
             }`}

@@ -449,7 +449,7 @@ export default function ProjectForm({ initialData, onComplete }: ProjectFormProp
                 <button
                     type="submit"
                     disabled={!isDirty || isSubmitting}
-                    className={`flex items-center gap-2.5 px-6 h-12 rounded-xl text-[14px] font-bold transition-all select-none border ${!isDirty || isSubmitting
+                    className={`flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold tracking-tight transition-all select-none border ${!isDirty || isSubmitting
                         ? "bg-portfolio-card border-portfolio-border text-portfolio-text/30 cursor-not-allowed opacity-40"
                         : "bg-portfolio-text border-portfolio-text text-portfolio-bg hover:bg-portfolio-text/90 active:scale-[0.98] shadow-[0_4px_24px_var(--color-portfolio-glow)] cursor-pointer"
                         }`}

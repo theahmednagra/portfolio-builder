@@ -1,4 +1,4 @@
-import BlurImage from "./blur-image";
+import LazyImage from "./lazy-image";
 import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 
 interface ProjectHeroProps {
@@ -30,7 +30,7 @@ export default function ProjectHero({
         <div className="flex items-start gap-5 max-w-3xl flex-1 min-w-0">
           {iconUrl && (
             <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl border border-portfolio-border bg-portfolio-card p-2 shrink-0 flex items-center justify-center shadow-xs overflow-hidden">
-              <BlurImage
+              <LazyImage
                 src={iconUrl}
                 alt={`${title} icon`}
                 className="w-full h-full object-contain rounded-lg"
@@ -95,7 +95,7 @@ export default function ProjectHero({
       {/* Cinematic Main Mockup Frame Preview Container */}
       <div className="w-full aspect-video rounded-2xl overflow-hidden bg-portfolio-card border border-portfolio-border shadow-xs relative">
         {imageUrl ? (
-          <BlurImage
+          <LazyImage
             src={imageUrl}
             alt={`${title} case showcase`}
             className="w-full h-full object-cover"

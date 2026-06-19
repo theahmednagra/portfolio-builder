@@ -39,7 +39,7 @@ export default function ConfirmDialog({
 
     return (
         <div
-            className="fixed inset-0 min-h-screen bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn"
+            className="fixed inset-0 min-h-screen min-w-screen bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn"
             onClick={onClose}
         >
             <div

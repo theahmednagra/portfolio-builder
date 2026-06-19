@@ -14,7 +14,7 @@ import {
 } from "react-icons/fi";
 
 import { FaXTwitter } from "react-icons/fa6";
-import BlurImage from "./blur-image";
+import LazyImage from "./lazy-image";
 
 interface Project {
     title: string;
@@ -158,7 +158,7 @@ export default function CommandMenu({ username, projects = [], socials = [] }: C
                                     >
                                         <div className="flex items-center gap-3.5 min-w-0">
                                             {proj.iconUrl ? (
-                                                <BlurImage
+                                                <LazyImage
                                                     src={proj.iconUrl}
                                                     alt=""
                                                     className="w-5 h-5 object-cover shrink-0 rounded-full"

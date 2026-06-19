@@ -139,8 +139,8 @@ export default function SettingsPage() {
         {/* 1. IDENTITY MANAGEMENT CONTROL BLOCK */}
         <section className="bg-portfolio-card border border-portfolio-border/80 rounded-2xl overflow-hidden shadow-xl">
           <div className="p-5 sm:p-6 space-y-5">
-            <div className="flex items-center gap-3 border-b border-portfolio-border/60 pb-4">
-              <div className="w-9 h-9 rounded-xl bg-portfolio-bg border border-portfolio-border/80 flex items-center justify-center text-portfolio-muted shadow-inner">
+            <div className="flex items-start sm:items-center gap-3 border-b border-portfolio-border/60 pb-4">
+              <div className="w-9 h-9 rounded-xl bg-portfolio-bg border border-portfolio-border/80 flex items-center justify-center text-portfolio-muted shrink-0 shadow-inner">
                 <FiUser className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -151,13 +151,14 @@ export default function SettingsPage() {
 
             <form onSubmit={handleUsernameSubmit} className="space-y-4">
               <div className="space-y-2">
-                <div className={`flex rounded-xl overflow-hidden border transition-all bg-portfolio-bg group shadow-inner focus-within:ring-1
+                {/* Dynamic Responsive Form Wrapper */}
+                <div className={`flex flex-col sm:flex-row rounded-xl overflow-hidden border transition-all bg-portfolio-bg shadow-inner focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-portfolio-card
                   ${usernameError
-                    ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/30'
-                    : 'border-portfolio-border focus-within:border-portfolio-accent/60 focus-within:ring-portfolio-accent/30'
+                    ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20'
+                    : 'border-portfolio-border focus-within:border-portfolio-accent/60 focus-within:ring-portfolio-accent/20'
                   }`}
                 >
-                  <span className="bg-portfolio-card/40 text-portfolio-text/40 px-3.5 py-2.5 text-[13px] font-bold select-none border-r border-portfolio-border/80 flex items-center font-mono">
+                  <span className="bg-portfolio-card/40 text-portfolio-text/40 px-3.5 py-2.5 sm:py-0 text-[13px] font-bold select-none border-b sm:border-b-0 sm:border-r border-portfolio-border/80 flex items-center font-mono">
                     {`${baseUrl}/p/`}
                   </span>
                   <input
@@ -167,7 +168,6 @@ export default function SettingsPage() {
                       const val = e.target.value;
                       setUsernameInput(val);
 
-                      // Real-time client side validation loop matching your Zod configuration
                       const trimmed = val.trim();
                       if (trimmed === "") {
                         setUsernameError(null);
@@ -181,16 +181,14 @@ export default function SettingsPage() {
                         setUsernameError(null);
                       }
                     }}
-                    // Native browser validation hooks supporting schema limits
                     minLength={3}
                     maxLength={20}
                     pattern="^[a-zA-Z0-9_]*$"
-                    className="bg-transparent px-3.5 py-2.5 text-[13.5px] text-portfolio-text font-mono outline-none w-full placeholder:text-portfolio-text/20"
+                    className="bg-transparent px-3.5 py-2.5 text-[13.5px] text-portfolio-text font-mono outline-none flex-1 placeholder:text-portfolio-text/20"
                     placeholder="username"
                   />
                 </div>
 
-                {/* Real-time Inline Error Validation Message Banner */}
                 {usernameError && (
                   <p className="text-[11.5px] text-red-400 font-medium pl-1 animate-fadeIn">
                     {usernameError}
@@ -198,8 +196,8 @@ export default function SettingsPage() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-portfolio-border/40 gap-4">
-                <p className="text-[11.5px] text-portfolio-muted/60 font-medium">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 border-t border-portfolio-border/40 gap-3">
+                <p className="text-[11.5px] text-portfolio-muted/60 font-medium order-2 sm:order-1">
                   Alphanumerics or underscores allowed.
                 </p>
                 <button
@@ -209,13 +207,12 @@ export default function SettingsPage() {
                     actionLoading ||
                     usernameError !== null
                   }
-                  className="h-8 px-4 text-[12px] font-bold text-portfolio-bg bg-portfolio-text hover:bg-portfolio-text/90 disabled:bg-portfolio-text/20 disabled:text-portfolio-text/30 rounded-lg transition-all shadow-md cursor-pointer disabled:cursor-not-allowed select-none"
+                  className="h-9 px-4 text-[12px] font-bold text-portfolio-bg bg-portfolio-text hover:bg-portfolio-text/90 disabled:bg-portfolio-text/10 disabled:text-portfolio-text/30 rounded-xl transition-all shadow-md cursor-pointer disabled:cursor-not-allowed select-none order-1 sm:order-2 w-full sm:w-auto text-center"
                 >
                   Save Handle
                 </button>
               </div>
             </form>
-
           </div>
         </section>
 
@@ -231,11 +228,11 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="p-1 bg-portfolio-bg border border-portfolio-border/60 rounded-xl flex gap-1 self-start sm:self-auto shadow-inner">
+          <div className="p-1 bg-portfolio-bg border border-portfolio-border/60 rounded-xl flex gap-1 w-full sm:w-auto shadow-inner">
             <button
               onClick={() => { if (settings.theme !== "default-dark") triggerMutationRequest({ theme: "default-dark" }); }}
-              className={`h-7 px-3 text-[11.5px] font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${settings.theme === "default-dark"
-                ? "bg-portfolio-card text-portfolio-text shadow-md border border-portfolio-border/40"
+              className={`h-8 flex-1 sm:flex-initial px-4 text-[11.5px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${settings.theme === "default-dark"
+                ? "bg-portfolio-card text-portfolio-text shadow-md"
                 : "text-portfolio-muted hover:text-portfolio-text"
                 }`}
             >
@@ -243,8 +240,8 @@ export default function SettingsPage() {
             </button>
             <button
               onClick={() => { if (settings.theme !== "default-light") triggerMutationRequest({ theme: "default-light" }); }}
-              className={`h-7 px-3 text-[11.5px] font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${settings.theme === "default-light"
-                ? "bg-portfolio-card text-portfolio-text shadow-md border border-portfolio-border/40"
+              className={`h-8 flex-1 sm:flex-initial px-4 text-[11.5px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${settings.theme === "default-light"
+                ? "bg-portfolio-card text-portfolio-text shadow-md"
                 : "text-portfolio-muted hover:text-portfolio-text"
                 }`}
             >
@@ -265,16 +262,21 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* Premium Sliding Toggle Component */}
           <button
             onClick={() => triggerMutationRequest({ isActive: !settings.isActive })}
             disabled={actionLoading}
-            className={`w-11 h-6 flex items-center rounded-full p-0.5 transition-all duration-300 border shrink-0 select-none cursor-pointer disabled:cursor-not-allowed ${settings.isActive
-              ? "bg-portfolio-accent/10 border-portfolio-accent/40 justify-end"
-              : "bg-portfolio-bg border-portfolio-border justify-start"
+            className={`w-12 h-6.5 flex items-center rounded-full p-1 transition-colors duration-300 border shrink-0 select-none cursor-pointer disabled:cursor-not-allowed ${settings.isActive
+              ? "bg-portfolio-accent/10 border-portfolio-accent/40"
+              : "bg-portfolio-bg border-portfolio-border"
               }`}
+            aria-label="Toggle public visibility"
           >
-            <div className={`w-4 h-4 rounded-full shadow-md transition-all duration-300 ${settings.isActive ? "bg-portfolio-accent" : "bg-portfolio-muted/60"
-              }`} />
+            <div className={`w-4.5 h-4.5 rounded-full shadow-sm transition-transform duration-300 ${settings.isActive
+              ? "bg-portfolio-accent translate-x-5.5"
+              : "bg-portfolio-muted/60 translate-x-0"
+              }`}
+            />
           </button>
         </section>
 

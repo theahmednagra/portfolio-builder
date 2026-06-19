@@ -1,7 +1,7 @@
 "use client";
 
 import { useProgressNavigation } from "./progress-provider";
-import BlurImage from "./blur-image";
+import LazyImage from "./lazy-image";
 import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 
 interface ProjectItem {
@@ -34,7 +34,7 @@ export default function ProjectRowCard({ project, username }: ProjectRowCardProp
                 className="w-full md:w-75 aspect-video md:h-auto rounded-xl overflow-hidden shrink-0 cursor-pointer relative bg-portfolio-bg border border-portfolio-border/40 transition-all duration-500 group-hover:scale-[1.01] group-hover:border-portfolio-accent/10"
             >
                 {project.imageUrl ? (
-                    <BlurImage
+                    <LazyImage
                         src={project.imageUrl}
                         alt={`${project.title} mockup`}
                         className="w-full h-full object-cover"
@@ -60,7 +60,7 @@ export default function ProjectRowCard({ project, username }: ProjectRowCardProp
                         {project.iconUrl && (
                             /* Premium Scaled Icon Container */
                             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-portfolio-border bg-portfolio-bg p-1.5 shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover/title:border-portfolio-accent/30 group-hover/title:scale-[1.02] shadow-2xs">
-                                <BlurImage
+                                <LazyImage
                                     src={project.iconUrl}
                                     alt={`${project.title} logo`}
                                     className="w-full h-full object-contain rounded-md"
