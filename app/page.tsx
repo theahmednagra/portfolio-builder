@@ -1,31 +1,46 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import LazyImage from "@/components/portfolio/lazy-image";
 import Link from "next/link";
 import { FiArrowRight, FiActivity, FiLayers, FiShield } from "react-icons/fi";
-import { useAuth } from "@/context/auth-context";
+import DashboardInitialSkeleton from "@/components/dashboard/initial-skeleton";
 
 export default function LandingPage() {
-  const { user } = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      router.push("/dashboard");
+    async function checkUserSession() {
+      try {
+        const response = await fetch("/api/me");
+        if (response.ok) {
+          router.push("/dashboard");
+          // Leave isLoading as true so the skeleton stays visible during the transition
+          return;
+        }
+        // If not ok, the user is a guest, so stop loading and show the landing page
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to check auth session:", error);
+        setIsLoading(false); // Stop loading on error so the page doesn't hang
+      }
     }
-  }, [user, router]);
 
-  // Instantly halt rendering if a user session is detected to prevent landing page flash
-  if (user) return null;
+    checkUserSession();
+  }, [router]);
+
+  if (isLoading) {
+    return <DashboardInitialSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-[#030303] text-portfolio-text selection:bg-portfolio-accent/20 selection:text-portfolio-accent overflow-x-hidden antialiased">
 
       {/* 1. Sleek Navigation Header */}
       <header className="w-full h-16 border-b border-portfolio-border/40 bg-[#030303]/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 px-6 sm:px-12 flex items-center justify-between select-none">
-        <span className="text-[16px] font-black tracking-tight text-portfolio-text">
+        <span className="text-[16px] md:text-[18px] font-black tracking-tight text-portfolio-text">
           Stackfold
         </span>
         <Link

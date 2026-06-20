@@ -21,6 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
+      <head>
+        
+      </head>
       <body
         className={`${senFont.className} ${senFont.variable} min-h-full bg-portfolio-bg text-portfolio-text antialiased relative transition-colors duration-200`}
       >
