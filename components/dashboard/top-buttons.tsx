@@ -11,7 +11,7 @@ const TopButtons = () => {
     const username = user?.username;
     const [copied, setCopied] = useState(false);
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
     const portfolioUrl = `${baseUrl}/p/${username || ""}`;
 
     const onCopy = async () => {

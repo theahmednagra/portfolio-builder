@@ -17,7 +17,7 @@ interface SettingsState {
 export default function SettingsPage() {
   const { showToast } = useToast();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
   const [settings, setSettings] = useState<SettingsState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -318,21 +318,23 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <button
-            onClick={() => triggerMutationRequest({ isActive: !settings.isActive })}
-            disabled={actionLoading}
-            className={`w-12 h-6.5 flex items-center rounded-full p-1 transition-colors duration-300 border shrink-0 select-none cursor-pointer disabled:cursor-not-allowed ${settings.isActive
-              ? "bg-portfolio-accent/10 border-portfolio-accent/40"
-              : "bg-portfolio-bg border-portfolio-border"
-              }`}
-            aria-label="Toggle public visibility"
-          >
-            <div className={`w-4.5 h-4.5 rounded-full shadow-sm transition-transform duration-300 ${settings.isActive
-              ? "bg-portfolio-accent translate-x-5.5"
-              : "bg-portfolio-muted/60 translate-x-0"
-              }`}
-            />
-          </button>
+          <div className="flex justify-end">
+            <button
+              onClick={() => triggerMutationRequest({ isActive: !settings.isActive })}
+              disabled={actionLoading}
+              className={`w-12 h-6.5 flex items-center rounded-full p-1 transition-colors duration-300 border shrink-0 select-none cursor-pointer disabled:cursor-not-allowed ${settings.isActive
+                ? "bg-portfolio-accent/10 border-portfolio-accent/40"
+                : "bg-portfolio-bg border-portfolio-border"
+                }`}
+              aria-label="Toggle public visibility"
+            >
+              <div className={`w-4.5 h-4.5 rounded-full shadow-sm transition-transform duration-300 ${settings.isActive
+                ? "bg-portfolio-accent translate-x-5.5"
+                : "bg-portfolio-muted/60 translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
         </section>
       </div>
     </div>

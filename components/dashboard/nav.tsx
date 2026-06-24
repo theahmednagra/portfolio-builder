@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { FiGrid, FiUser, FiBarChart2, FiSettings } from "react-icons/fi";
-import { LuSparkle } from "react-icons/lu";
+import { FiGrid, FiUser, FiBarChart2, FiSettings, FiCpu } from "react-icons/fi";
 import { useAuth } from "@/context/auth-context";
 import LogoutButton from "./logout-button";
 import Link from "next/link";
@@ -13,7 +12,7 @@ const NAV_ITEMS = [
     { label: "Portfolio", href: "/dashboard/portfolio", icon: FiUser },
     { label: "Analytics", href: "/dashboard/analytics", icon: FiBarChart2 },
     { label: "Settings", href: "/dashboard/settings", icon: FiSettings },
-    { label: "Copilot", href: "/dashboard/copilot", icon: LuSparkle },
+    { label: "Copilot", href: "/dashboard/copilot", icon: FiCpu },
 ];
 
 interface NavigationProps {

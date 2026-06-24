@@ -208,7 +208,7 @@ export default function AnalyticsDashboard() {
         <div className="bg-portfolio-card border border-portfolio-border/80 rounded-2xl p-5 shadow-sm flex items-start justify-between gap-4 hover:border-portfolio-accent/30 transition-all duration-300">
           <div className="space-y-1">
             <p className="text-[11px] font-bold uppercase tracking-wider text-portfolio-muted/90">All-Time Audience</p>
-            <h2 className="text-3xl font-bold text-portfolio-text tracking-tight font-mono">
+            <h2 className="text-2xl font-semibold text-portfolio-text tracking-tight font-mono">
               {analytics.totalViews.toLocaleString()}
             </h2>
             <p className="text-[12px] text-portfolio-muted/60 pt-0.5">Total accumulated system impressions</p>
@@ -221,7 +221,7 @@ export default function AnalyticsDashboard() {
         <div className="bg-portfolio-card border border-portfolio-border/80 rounded-2xl p-5 shadow-sm flex items-start justify-between gap-4 hover:border-portfolio-accent/30 transition-all duration-300">
           <div className="space-y-1">
             <p className="text-[11px] font-bold uppercase tracking-wider text-portfolio-muted/90">Period Engine Hits</p>
-            <h2 className="text-3xl font-bold text-portfolio-text tracking-tight font-mono">
+            <h2 className="text-2xl font-semibold text-portfolio-text tracking-tight font-mono">
               {totalPeriodViews.toLocaleString()}
             </h2>
             <p className="text-[12px] text-portfolio-muted/60 pt-0.5">Traffic dynamic inside active filter window</p>
@@ -234,7 +234,7 @@ export default function AnalyticsDashboard() {
         <div className="bg-portfolio-card border border-portfolio-border/80 rounded-2xl p-5 shadow-sm flex items-start justify-between gap-4 hover:border-portfolio-accent/30 transition-all duration-300">
           <div className="space-y-1">
             <p className="text-[11px] font-bold uppercase tracking-wider text-portfolio-muted/90">Historical Peak</p>
-            <h2 className="text-3xl font-bold text-portfolio-text tracking-tight font-mono">
+            <h2 className="text-2xl font-semibold text-portfolio-text tracking-tight font-mono">
               {maxPeakViews.toLocaleString()}
             </h2>
             <p className="text-[12px] text-portfolio-muted/60 pt-0.5">Maximum concurrent event threshold logging</p>

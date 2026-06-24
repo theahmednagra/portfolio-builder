@@ -6,7 +6,7 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     const { username } = await params;
 
     // ⚡ CRITICAL: Use your production environment URL or fall back to localhost
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://stackfold.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://stackfold.vercel.app";
     const fallbackTitle = "Stackfold Portfolio";
     const fallbackDesc = "Build a portfolio that commands attention. The minimalist developer platform.";
 

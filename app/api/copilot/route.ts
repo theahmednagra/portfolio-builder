@@ -7,41 +7,64 @@ import { Info } from "@/models/info.model";
 import { Project, IProject } from "@/models/project.model";
 import { Experience, IExperience } from "@/models/experience.model";
 import { Visit } from "@/models/visit.model";
-import { aiModel } from "@/lib/ai-model"; // ← provider-agnostic import
+import { aiModel, AI_MAX_RETRIES } from "@/lib/ai-model"; // ← provider-agnostic import
 
 // ---------------------------------------------------------------------------
 // SHARED INPUT SCHEMAS
 // Defined outside the handler so they are created once, not on every request.
 // ---------------------------------------------------------------------------
 
+// optionalUrl: accepts any string or undefined at the schema level.
+// We skip .url() here because some providers reject z.literal("") unions (empty enum).
+// URL sanitization happens inside each tool's execute function instead.
+const optionalUrl = z.string().optional();
+
+// safeUrl: strips empty strings and invalid URLs before saving to the database.
+// Returns empty string for anything that is not a real URL so Mongoose stays clean.
+function safeUrl(value: string | undefined): string {
+    if (!value || value.trim() === "") return "";
+    try { new URL(value.trim()); return value.trim(); }
+    catch { return ""; }
+}
+
+// safeEmail: basic email sanity check at the execute layer.
+// We avoid z.string().email() because its compiled regex uses lookaheads
+// which some providers reject in JSON Schema draft-07.
+function safeEmail(value: string): string {
+    const trimmed = value.trim();
+    return trimmed.includes("@") && trimmed.includes(".") ? trimmed : "";
+}
+
 const profileSchema = z.object({
     fullname: z.string().min(2).max(50).trim(),
     bio: z.string().min(10).max(160).trim(),
     description: z.string().min(20).trim(),
-    contact: z.string().email().trim(),
+    contact: z.string().trim(), // .email() omitted — some providers reject lookahead regex in JSON Schema draft-07
     endNote: z.string().max(200).optional(),
-    github: z.string().url().optional(),
-    linkedin: z.string().url().optional(),
-    twitter: z.string().url().optional(),
+    github: optionalUrl,
+    linkedin: optionalUrl,
+    twitter: optionalUrl,
 });
 
+// Note: no .min() constraints here — some providers may pass empty strings for fields
+// it does not intend to change. The updateProject execute merges with DB values instead.
 const projectWriteSchema = z.object({
-    title: z.string().min(1).max(80),
-    tagline: z.string().min(1).max(120),
-    description: z.string().min(10),
+    title: z.string().max(80),
+    tagline: z.string().max(120),
+    description: z.string(),
     techStack: z.array(z.string()).max(20),
     features: z.array(z.string()).max(15),
-    projectUrl: z.string().url().optional(),
-    githubUrl: z.string().url().optional(),
+    projectUrl: optionalUrl,
+    githubUrl: optionalUrl,
 });
 
 const experienceWriteSchema = z.object({
-    company: z.string().min(1).max(100),
-    role: z.string().min(1).max(100),
-    startDate: z.string(),
-    endDate: z.string().optional(),
+    company: z.string().max(100),
+    role: z.string().max(100),
+    startDate: z.string().describe("Format: YYYY-MM, e.g. 2024-06"),
+    endDate: z.string().optional().describe("Format: YYYY-MM, e.g. 2025-01. Leave empty if currentJob is true."),
     currentJob: z.boolean().default(false),
-    description: z.string().min(10),
+    description: z.string(),
 });
 
 // ---------------------------------------------------------------------------
@@ -74,44 +97,23 @@ export async function POST(req: NextRequest) {
 
         const result = streamText({
             model: aiModel,
-            messages: messages as ModelMessage[],
+            // Keep only last 6 messages to minimize token overhead per call.
+            // The system prompt + tool schemas already cost ~2500 tokens on every call.
+            messages: messages.slice(-6) as ModelMessage[],
             stopWhen: stepCountIs(10),
+            maxRetries: AI_MAX_RETRIES,
 
-            system: `You are Stackfold Copilot — a precise, technically-minded AI portfolio engineer.
-You manage the user's public developer portfolio: their profile, projects, experience timeline, theme, and analytics.
+            system: `You are Stackfold Copilot, a portfolio AI agent for user "${username}" with the email "${email}".
+Profile ready: ${infoDoc ? "yes" : "no  run updateProfile first"}.
 
-USER CONTEXT (READ-ONLY — never modify these):
-- Username: "${username}"
-- Email: "${email}"
-- Profile initialized: ${infoDoc ? "yes" : "no — user must set up their profile first"}
-
-═══════════════════════════════════════
-HARD BOUNDARIES — NEVER VIOLATE THESE
-═══════════════════════════════════════
-1. Never touch the User model. Authentication credentials are completely out of scope.
-2. Never change the username. Direct user to: Dashboard → Settings → Account.
-3. Never change the email. Emails are permanent unique identifiers. A new email requires a new account.
-4. Never invent or assume tool capabilities. Only use explicitly declared tools.
-5. Never execute a destructive operation without a prior confirmation step.
-
-═══════════════════════════════════════
-DELETION PROTOCOL — ALWAYS FOLLOW THIS
-═══════════════════════════════════════
-When a user wants to delete anything:
-  STEP 1 → Call the flag tool (flagProjectForDeletion or flagExperienceForDeletion).
-           This returns what will be deleted. Present it clearly to the user.
-  STEP 2 → Ask: "Are you sure you want to permanently delete this? Reply 'yes, delete it' to confirm."
-  STEP 3 → Only after explicit confirmation, call the confirm tool to execute.
-Never skip step 2. Never assume confirmation from vague messages like "ok" or "sure".
-
-═══════════════════════════════════════
-RESPONSE STYLE
-═══════════════════════════════════════
-- Crisp and technically precise. No filler phrases.
-- After a successful write operation, confirm exactly what changed.
-- After a read operation, present data in a clean, readable format.
-- If the profile is not initialized and the user requests a write, tell them to set up their profile first via updateProfile.
-- Never say "Great!" or "Sure!" — just execute and confirm.`,
+RULES:
+- Never modify username, email, or auth data. Username changes → Dashboard > Settings > Account.
+- Only use declared tools. Never invent capabilities.
+- "remove X from techStack" or "add X to project" = updateProject (never deletion).
+- "delete project/experience" = flag tool first, then confirm tool after explicit user yes.
+- Deletion needs confirmToken from flag tool — never call confirm without it.
+- For updateProject: always call getPortfolioSnapshot first to get current field values, then merge changes.
+- Confirm what changed after every write. Be brief and precise.`,
 
             tools: {
 
@@ -120,7 +122,7 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 getPortfolioSnapshot: tool({
                     description:
-                        "Fetches the user's complete portfolio data: profile info, all projects, and all experience entries. Call this when the user asks what their portfolio currently looks like, or before making updates to show the current state.",
+                        "Fetch all portfolio data: profile, projects, and experiences. Call before any update to get current field values.",
                     inputSchema: z.object({}),
                     execute: async () => {
                         if (!infoDoc) return { error: "Portfolio not initialized. Use updateProfile to set it up first." };
@@ -152,16 +154,16 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 updateProfile: tool({
                     description:
-                        "Updates the user's public profile: full name, bio, description, contact email, end note, and social links (GitHub, LinkedIn, Twitter). Use this for any profile-level text changes.",
+                        "Update profile fields: name, bio, description, contact, endNote, social links.",
                     inputSchema: profileSchema,
                     execute: async ({ fullname, bio, description, contact, endNote, github, linkedin, twitter }) => {
                         const socialLinks = [github, linkedin, twitter]
-                            .filter((link): link is string => typeof link === "string" && link.trim() !== "")
-                            .map((link) => link.trim());
+                            .map(safeUrl)
+                            .filter((link) => link !== "");
 
                         const updated = await Info.findOneAndUpdate(
                             { userId },
-                            { fullname, bio, description, contact, endNote: endNote ?? "", socialLinks },
+                            { fullname, bio, description, contact: safeEmail(contact), endNote: endNote ?? "", socialLinks },
                             { upsert: true, new: true, runValidators: true }
                         );
 
@@ -174,7 +176,7 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 updateTheme: tool({
                     description:
-                        "Changes the portfolio's visual theme. Available themes: 'default-dark' or 'default-light'. Use only when the user explicitly asks to change their theme.",
+                        "Change portfolio theme. Options: default-dark or default-light.",
                     inputSchema: z.object({
                         theme: z.enum(["default-dark", "default-light"]),
                     }),
@@ -191,7 +193,7 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 addProject: tool({
                     description:
-                        "Creates a new project entry in the portfolio showcase. Use when the user wants to add a project they haven't added before. Do not use for editing existing projects.",
+                        "Add a new project to the portfolio. Do not use for editing existing projects.",
                     inputSchema: projectWriteSchema,
                     execute: async ({ title, tagline, description, techStack, features, projectUrl, githubUrl }) => {
                         if (!infoDoc) return { error: "Profile not initialized." };
@@ -206,8 +208,8 @@ RESPONSE STYLE
                             description,
                             techStack,
                             features,
-                            projectUrl: projectUrl ?? "",
-                            githubUrl: githubUrl ?? "",
+                            projectUrl: safeUrl(projectUrl),
+                            githubUrl: safeUrl(githubUrl),
                         }) as IProject;
 
                         await Info.updateOne({ _id: infoDoc._id }, { $push: { projects: newProject._id } });
@@ -221,21 +223,36 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 updateProject: tool({
                     description:
-                        "Updates an existing project's details. Requires the project's slug to identify it. Updates all fields at once. Call getPortfolioSnapshot first if you don't have the slug.",
+                        "Update an existing project by slug. ALWAYS call getPortfolioSnapshot first to get current values, then merge — only override the fields the user asked to change.",
                     inputSchema: projectWriteSchema.extend({
                         slug: z.string().describe("The unique slug of the project to update. Required for identification."),
                     }),
                     execute: async ({ slug, title, tagline, description, techStack, features, projectUrl, githubUrl }) => {
                         if (!infoDoc) return { error: "Profile not initialized." };
 
+                        // Fetch current project first — model may pass empty strings for unchanged fields
+                        const current = await Project.findOne({ slug, infoId: infoDoc._id }).lean();
+                        if (!current) return { error: `No project found with slug "${slug}" in your portfolio.` };
+
+                        // Merge: only replace a field if the model actually provided a non-empty value
+                        const merged = {
+                            title: title?.trim() || current.title,
+                            tagline: tagline?.trim() || current.tagline,
+                            description: description?.trim() || current.description,
+                            techStack: techStack?.length ? techStack : current.techStack,
+                            features: features?.length ? features : current.features,
+                            projectUrl: safeUrl(projectUrl) || current.projectUrl || "",
+                            githubUrl: safeUrl(githubUrl) || current.githubUrl || "",
+                        };
+
                         const updated = await Project.findOneAndUpdate(
-                            { slug, infoId: infoDoc._id }, // scoped to this user's projects only
-                            { title, tagline, description, techStack, features, projectUrl, githubUrl },
+                            { slug, infoId: infoDoc._id },
+                            merged,
                             { new: true, runValidators: true }
                         );
 
-                        if (!updated) return { error: `No project found with slug "${slug}" in your portfolio.` };
-                        return { success: true, slug: updated.slug, title: updated.title };
+                        if (!updated) return { error: `Update failed for slug "${slug}".` };
+                        return { success: true, slug: updated.slug, title: updated.title, techStack: updated.techStack };
                     },
                 }),
 
@@ -244,7 +261,7 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 flagProjectForDeletion: tool({
                     description:
-                        "Phase 1 of project deletion. Looks up the project by slug and returns its details so the user can review what will be deleted. Never deletes anything. Always call this before confirmProjectDeletion.",
+                        "Phase 1 of deletion: look up project by slug, return details and a confirmToken. Never deletes. Must be called before confirmProjectDeletion.",
                     inputSchema: z.object({
                         slug: z.string().describe("The slug of the project the user wants to delete."),
                     }),
@@ -254,12 +271,17 @@ RESPONSE STYLE
                         const project = await Project.findOne({ slug, infoId: infoDoc._id }).lean();
                         if (!project) return { error: `No project found with slug "${slug}".` };
 
+                        // Generate a one-time confirmation token the model must pass back.
+                        // This makes it physically impossible to delete without the token.
+                        const confirmToken = `delete-${slug}-${Date.now()}`;
+
                         return {
                             flagged: true,
                             slug: project.slug,
                             title: project.title,
                             tagline: project.tagline,
-                            message: "Project found. Awaiting user confirmation before deletion.",
+                            confirmToken,
+                            instruction: `Present the project details to the user and ask for explicit confirmation. Once the user confirms, call confirmProjectDeletion with slug and confirmToken "${confirmToken}".`,
                         };
                     },
                 }),
@@ -269,12 +291,18 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 confirmProjectDeletion: tool({
                     description:
-                        "Phase 2 of project deletion. Permanently deletes the project. Only call this after flagProjectForDeletion has been called AND the user has explicitly confirmed they want to delete.",
+                        "Phase 2 of deletion: permanently delete project. Requires confirmToken from flagProjectForDeletion. Only call after explicit user confirmation.",
                     inputSchema: z.object({
-                        slug: z.string().describe("The slug of the project confirmed for deletion."),
+                        slug: z.string().describe("The slug of the project to delete."),
+                        confirmToken: z.string().describe("The confirmToken returned by flagProjectForDeletion. Required — do not call without it."),
                     }),
-                    execute: async ({ slug }) => {
+                    execute: async ({ slug, confirmToken }) => {
                         if (!infoDoc) return { error: "Profile not initialized." };
+
+                        // Token must start with the correct prefix — basic integrity check
+                        if (!confirmToken.startsWith(`delete-${slug}-`)) {
+                            return { error: "Invalid confirmation token. Run flagProjectForDeletion again to get a valid token." };
+                        }
 
                         const deleted = await Project.findOneAndDelete({ slug, infoId: infoDoc._id });
                         if (!deleted) return { error: `Project with slug "${slug}" not found.` };
@@ -290,7 +318,7 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 addExperience: tool({
                     description:
-                        "Adds a new work experience entry to the portfolio timeline. Use for internships, jobs, or freelance roles the user wants to showcase.",
+                        "Add a new work experience entry (job, internship, freelance).",
                     inputSchema: experienceWriteSchema,
                     execute: async ({ company, role, startDate, endDate, currentJob, description }) => {
                         if (!infoDoc) return { error: "Profile not initialized." };
@@ -316,7 +344,7 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 updateExperience: tool({
                     description:
-                        "Updates an existing experience entry. Requires the experience's MongoDB _id to identify it. Call getPortfolioSnapshot first if you don't have the _id.",
+                        "Update an existing experience by _id. Call getPortfolioSnapshot first if you need the _id.",
                     inputSchema: experienceWriteSchema.extend({
                         experienceId: z.string().describe("The MongoDB _id of the experience entry to update."),
                     }),
@@ -339,7 +367,7 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 flagExperienceForDeletion: tool({
                     description:
-                        "Phase 1 of experience deletion. Looks up the experience by its _id and returns details for the user to review. Never deletes anything. Always call this before confirmExperienceDeletion.",
+                        "Phase 1 of experience deletion: look up by _id, return details and confirmToken. Never deletes.",
                     inputSchema: z.object({
                         experienceId: z.string().describe("The MongoDB _id of the experience entry to delete."),
                     }),
@@ -349,12 +377,15 @@ RESPONSE STYLE
                         const exp = await Experience.findOne({ _id: experienceId, infoId: infoDoc._id }).lean();
                         if (!exp) return { error: `No experience found with id "${experienceId}".` };
 
+                        const confirmToken = `delete-exp-${experienceId}-${Date.now()}`;
+
                         return {
                             flagged: true,
                             experienceId,
                             company: exp.company,
                             role: exp.role,
-                            message: "Experience found. Awaiting user confirmation before deletion.",
+                            confirmToken,
+                            instruction: `Present the experience details to the user and ask for explicit confirmation. Once confirmed, call confirmExperienceDeletion with experienceId and confirmToken "${confirmToken}".`,
                         };
                     },
                 }),
@@ -364,12 +395,17 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 confirmExperienceDeletion: tool({
                     description:
-                        "Phase 2 of experience deletion. Permanently deletes the experience entry. Only call this after flagExperienceForDeletion has been called AND the user has explicitly confirmed.",
+                        "Phase 2 of experience deletion: permanently delete. Requires confirmToken from flagExperienceForDeletion.",
                     inputSchema: z.object({
-                        experienceId: z.string().describe("The MongoDB _id of the experience confirmed for deletion."),
+                        experienceId: z.string().describe("The MongoDB _id of the experience to delete."),
+                        confirmToken: z.string().describe("The confirmToken returned by flagExperienceForDeletion. Required."),
                     }),
-                    execute: async ({ experienceId }) => {
+                    execute: async ({ experienceId, confirmToken }) => {
                         if (!infoDoc) return { error: "Profile not initialized." };
+
+                        if (!confirmToken.startsWith(`delete-exp-${experienceId}-`)) {
+                            return { error: "Invalid confirmation token. Run flagExperienceForDeletion again." };
+                        }
 
                         const deleted = await Experience.findOneAndDelete({ _id: experienceId, infoId: infoDoc._id });
                         if (!deleted) return { error: `Experience with id "${experienceId}" not found.` };
@@ -385,7 +421,7 @@ RESPONSE STYLE
                 // ─────────────────────────────────────────────
                 getAnalyticsSummary: tool({
                     description:
-                        "Fetches and summarizes portfolio visit analytics. Returns total visits, visits in the last 7 days, visits in the last 30 days, and a breakdown by country. Use when the user asks about their portfolio traffic or analytics.",
+                        "Fetch visit analytics: total visits, last 7 days, last 30 days, top countries.",
                     inputSchema: z.object({}),
                     execute: async () => {
                         if (!infoDoc) return { error: "Profile not initialized." };

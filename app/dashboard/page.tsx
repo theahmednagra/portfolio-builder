@@ -15,7 +15,7 @@ import {
   FiTerminal,
   FiBarChart2,
 } from "react-icons/fi";
-import { LuEyeOff, LuLayoutDashboard, LuSlidersHorizontal } from "react-icons/lu";
+import { LuEyeOff, LuLayoutDashboard, LuSlidersHorizontal, LuSunMoon } from "react-icons/lu";
 
 interface OverviewData {
   profile: {
@@ -128,7 +128,7 @@ export default function OverviewDashboard() {
         <div>
           <h2 className="text-[20px] font-bold text-portfolio-text tracking-tight flex items-center gap-2.5">
             <LuLayoutDashboard className="w-5 h-5 text-portfolio-accent" />
-            <span>Workspace</span>
+            <span>Metrics</span>
           </h2>
         </div>
 
@@ -156,12 +156,11 @@ export default function OverviewDashboard() {
         <div className="w-fit shrink-0 flex items-center gap-2.5 bg-portfolio-card/30 border border-portfolio-border/40 p-1 rounded-lg select-none self-start md:self-center">
 
           <div className="flex items-center gap-1.5 px-2 py-1 h-6 rounded-md hover:bg-portfolio-card/60 transition-colors duration-150 cursor-default" aria-label="Theme">
-            <LuSlidersHorizontal
-              strokeWidth={2.5}
-              className="w-3 h-3 text-portfolio-accent shrink-0"
+            <LuSunMoon
+              className="w-4 h-4 text-portfolio-accent shrink-0"
               aria-hidden="true"
             />
-            <span className="text-[10.5px] font-mono font-bold tracking-wide text-portfolio-muted uppercase">
+            <span className="text-[12px] font-mono font-semibold tracking-wide text-portfolio-muted uppercase">
               {data.profile.activeTheme}
             </span>
           </div>
@@ -278,10 +277,10 @@ export default function OverviewDashboard() {
           </div>
 
           {/* Metric pair */}
-          <div className="flex flex-col gap-2 py-2 border-y border-portfolio-border/30 w-full select-none text-[11px] font-mono font-bold uppercase tracking-wider">
+          <div className="flex flex-col gap-2.5 py-2 border-y border-portfolio-border/30 w-full select-none text-[11px] font-mono font-bold uppercase tracking-wider">
 
             {/* Metric Entity: All-Time Volumetric Channel */}
-            <div className="flex w-full items-center justify-between gap-2 min-w-0">
+            <div className="flex w-full items-center justify-between gap-3 min-w-0">
               <FiEye size={13} className="text-portfolio-muted shrink-0" aria-hidden="true" />
               <span className="text-portfolio-muted shrink-0">All time</span>
               {/* Clean typography layout directly inline instead of heavy enclosed badges */}
@@ -291,7 +290,7 @@ export default function OverviewDashboard() {
             </div>
 
             {/* Metric Entity: 7-Day Velocity Tracking Channel */}
-            <div className="flex w-full items-center justify-between gap-2 border-l border-portfolio-border/30 min-w-0">
+            <div className="flex w-full items-center justify-between gap-3 border-l border-portfolio-border/30 min-w-0">
               <FiTrendingUp size={13} className="text-portfolio-accent/70 shrink-0" aria-hidden="true" />
               <span className="text-portfolio-accent/90 shrink-0">7 days</span>
               {/* Styled beautifully with inline contrast matching your text theme */}
