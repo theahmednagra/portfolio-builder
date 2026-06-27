@@ -15,13 +15,13 @@ export default function ProjectDetails({
     <article className="w-full text-left animate-fade-in antialiased selection:bg-portfolio-accent/20">
 
       {/* ── DESCRIPTION ── */}
-      <p className="text-[16px] leading-[1.85] text-portfolio-muted whitespace-pre-wrap mb-4 sm:mb-6">
+      <p className="text-[16px] leading-[1.85] text-portfolio-muted whitespace-pre-wrap mb-10">
         {description}
       </p>
 
       {/* ── FEATURES ── */}
       {features.length > 0 && (
-        <div className="mb-5 sm:mb-7">
+        <div className="mb-10">
           <h2 className="text-[18px] sm:text-[20px] font-bold text-portfolio-text tracking-tight mb-4">
             Key Features
           </h2>
@@ -56,7 +56,10 @@ export default function ProjectDetails({
       {/* ── TECH STACK ── */}
       {techStack.length > 0 && (
         <div>
-          <div className="flex flex-wrap gap-2">
+          <h2 className="text-[18px] sm:text-[20px] font-bold text-portfolio-text tracking-tight mb-4">
+            Tech Stack
+          </h2>
+          <div className="flex flex-wrap gap-3">
             {techStack.map((tech) => (
               <span
                 key={tech}
